@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2014 Pedro Vicente Gómez Sánchez.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.pedrovgs.problem50;
 
 import org.junit.Before;
@@ -32,12 +17,73 @@ public class UniqueCharsTest {
     uniqueChars = new UniqueChars();
   }
 
+  // --- EXISTING TESTS (Included for completeness) ---
+
   @Test(expected = IllegalArgumentException.class) public void shouldNotAcceptNullStringsAsInput() {
-    uniqueChars.evaluate(null);
+    uniqueChars.evaluate(null); // This test also covers validateInput() for evaluate2() if called
   }
 
-  @Test public void shouldReturnFalseIfInputStringIsEmpty() {
+  @Test public void shouldReturnTrueIfInputStringIsEmpty() {
+    // Corrected assertion name, empty string has unique chars.
     assertTrue(uniqueChars.evaluate(""));
   }
 
+  // ------------------- NEW TESTS FOR COVERAGE INCREASE -------------------
+
+  // --- Tests for evaluate() (HashSet-based) ---
+
+  /**
+   * Targets the successful exit branch: return true.
+   * Tests unique characters to ensure the 'if (charsCounter.contains...)' block is missed.
+   */
+  @Test public void evaluate_shouldReturnTrueForUniqueString() {
+    assertTrue(uniqueChars.evaluate("abcde"));
+  }
+
+  /**
+   * Targets the failure branch: return false.
+   * This is the critical missed instruction/branch coverage path.
+   */
+  @Test public void evaluate_shouldReturnFalseForNonUniqueString() {
+    assertFalse(uniqueChars.evaluate("hello")); // 'l' is repeated.
+  }
+  
+  /**
+   * Targets a longer unique string to ensure the loop runs many times.
+   */
+  @Test public void evaluate_shouldReturnTrueForLongUniqueString() {
+    assertTrue(uniqueChars.evaluate("abcdefghijk"));
+  }
+
+  // --- Tests for evaluate2() (Array-based, space optimization) ---
+
+  /**
+   * Targets the validateInput() check for evaluate2.
+   */
+  @Test(expected = IllegalArgumentException.class) public void evaluate2_shouldNotAcceptNullStringsAsInput() {
+    uniqueChars.evaluate2(null);
+  }
+
+  /**
+   * Targets the successful exit branch: return true.
+   * Tests unique characters to ensure the 'if (chars[c] >= 1)' branch is missed.
+   */
+  @Test public void evaluate2_shouldReturnTrueForUniqueString() {
+    assertTrue(uniqueChars.evaluate2("xyz123"));
+  }
+
+  /**
+   * Targets the failure branch: return false.
+   * This is the critical missed instruction/branch coverage path for evaluate2.
+   */
+  @Test public void evaluate2_shouldReturnFalseForNonUniqueString() {
+    assertFalse(uniqueChars.evaluate2("java")); // 'a' is repeated.
+  }
+  
+  /**
+   * Targets the empty string edge case for evaluate2.
+   */
+  @Test public void evaluate2_shouldReturnTrueForEmptyString() {
+    assertTrue(uniqueChars.evaluate2(""));
+  }
 }

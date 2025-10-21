@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2014 Pedro Vicente Gómez Sánchez.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.pedrovgs.problem36;
 
 import com.github.pedrovgs.binarytree.BinaryNode;
@@ -34,6 +19,7 @@ public class AvlTreeMedianTest {
     avlTreeMedian = new AvlTreeMedian();
   }
 
+  // --- EXISTING TESTS ---
   @Test(expected = IllegalArgumentException.class) public void shouldNotAcceptNullTrees() {
     avlTreeMedian.find(null);
   }
@@ -60,6 +46,64 @@ public class AvlTreeMedianTest {
 
     double median = avlTreeMedian.find(root);
 
-    assertEquals(2, median, DELTA);
+    assertEquals(2, median, DELTA); // Sorted list: -1, 1, 2, 3, 4. Median is 2 (index 2).
+  }
+  // ------------------- END EXISTING TESTS -------------------
+
+  // ------------------- NEW TESTS FOR COVERAGE INCREASE -------------------
+
+  /**
+   * Targets the critical missing branch: if (sortedElements.size() % 2 == 0).
+   * Tree: 1 < 2. Sorted: [1, 2]. Size = 2. Median = (1+2)/2 = 1.5
+   * Branch: true branch of size % 2 == 0.
+   */
+  @Test public void shouldReturnAverageOfTwoMiddleElementsForTwoNodeTree() {
+    BinaryNode<Integer> root = new BinaryNode<Integer>(2);
+    BinaryNode<Integer> n1 = new BinaryNode<Integer>(1);
+    root.setLeft(n1);
+
+    double median = avlTreeMedian.find(root);
+
+    assertEquals(1.5, median, DELTA);
+  }
+
+  /**
+   * Targets the critical missing branch: if (sortedElements.size() % 2 == 0).
+   * Tree: 1 < 2 < 3 < 4. Sorted: [1, 2, 3, 4]. Size = 4. Median = (2+3)/2 = 2.5
+   * Branch: true branch of size % 2 == 0, with more complex list indexing.
+   */
+  @Test public void shouldReturnAverageOfTwoMiddleElementsForFourNodeTree() {
+    BinaryNode<Integer> root = new BinaryNode<Integer>(3);
+    BinaryNode<Integer> n1 = new BinaryNode<Integer>(1);
+    BinaryNode<Integer> n2 = new BinaryNode<Integer>(2);
+    BinaryNode<Integer> n4 = new BinaryNode<Integer>(4);
+
+    root.setLeft(n2);
+    root.setRight(n4);
+    n2.setLeft(n1);
+
+    double median = avlTreeMedian.find(root);
+
+    assertEquals(2.5, median, DELTA);
+  }
+
+  /**
+   * Tests a larger odd-sized tree to ensure correct indexing (size=7).
+   * Sorted: [1, 2, 3, 4, 5, 6, 7]. Median is 4 (index 3).
+   * Branch: false branch of size % 2 == 0.
+   */
+  @Test public void shouldReturnMiddleElementForSevenNodeTree() {
+    // This tree is not an AVL, but the method uses an in-order traversal, so the structure is irrelevant.
+    BinaryNode<Integer> root = new BinaryNode<Integer>(4);
+    root.setLeft(new BinaryNode<Integer>(2));
+    root.getLeft().setLeft(new BinaryNode<Integer>(1));
+    root.getLeft().setRight(new BinaryNode<Integer>(3));
+    root.setRight(new BinaryNode<Integer>(6));
+    root.getRight().setLeft(new BinaryNode<Integer>(5));
+    root.getRight().setRight(new BinaryNode<Integer>(7));
+    
+    double median = avlTreeMedian.find(root);
+
+    assertEquals(4, median, DELTA);
   }
 }

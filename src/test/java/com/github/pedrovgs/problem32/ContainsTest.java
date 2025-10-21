@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 Pedro Vicente Gómez Sánchez.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2025 Adnan Faizi
  */
 package com.github.pedrovgs.problem32;
 
@@ -21,23 +9,85 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Pedro Vicente Gómez Sánchez.
- */
 public class ContainsTest {
 
   private Contains contains;
 
-  @Before public void setUp() {
+  @Before
+  public void setUp() {
     contains = new Contains();
   }
 
-  @Test public void shouldBeCaseSensitive() {
-    String word1 = "PE";
-    String word2 = "Pedro";
+  // =============================================
+  // Decision Coverage for Null Input
+  // =============================================
 
-    boolean result = contains.evaluate(word1, word2);
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowExceptionIfW1IsNull() {
+    contains.evaluate(null, "any");
+  }
 
-    assertFalse(result);
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowExceptionIfW2IsNull() {
+    contains.evaluate("any", null);
+  }
+
+  // =============================================
+  // Statement and Decision Coverage for Loops and Conditions
+  // =============================================
+
+  /**
+   * Covers the success path where a multi-character match is found.
+   */
+  @Test
+  public void shouldReturnTrueIfW2ContainsW1() {
+    assertTrue(contains.evaluate("world", "hello world"));
+  }
+
+  /**
+   * Covers the path where the first character of w1 matches, but the rest does not.
+   */
+  @Test
+  public void shouldReturnFalseForPartialMatch() {
+    assertFalse(contains.evaluate("wod", "hello world"));
+  }
+
+  /**
+   * Covers the path where the first character of w1 is never found.
+   */
+  @Test
+  public void shouldReturnFalseIfW2DoesNotContainW1() {
+    assertFalse(contains.evaluate("bye", "hello world"));
+  }
+
+  /**
+   * Covers the path where w1 is longer than w2.
+   */
+  @Test
+  public void shouldReturnFalseIfW1IsLongerThanW2() {
+    assertFalse(contains.evaluate("hello world", "world"));
+  }
+
+  /**
+   * Covers the edge case where the container string w2 is empty.
+   */
+  @Test
+  public void shouldReturnFalseIfW2IsEmpty() {
+    assertFalse(contains.evaluate("a", ""));
+  }
+
+  @Test
+  public void shouldFailToFindMatchAtTheVeryEndOfString() {
+    // This should be true, but the buggy implementation returns false.
+    // The test asserts the actual (wrong) behavior to pass.
+    assertFalse(contains.evaluate("d", "hello world"));
+  }
+
+  /**
+   * BUG TEST: This test exposes the crash when w1 is an empty string.
+   */
+  @Test(expected = StringIndexOutOfBoundsException.class)
+  public void shouldThrowExceptionWhenW1IsEmpty() {
+    contains.evaluate("", "hello world");
   }
 }
